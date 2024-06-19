@@ -1,11 +1,10 @@
-# models.py
-from sqlalchemy import Table, Column, Integer, String
-from .database import metadata
+from sqlalchemy import Column, Integer, String
+from .database import Base
 
-users = Table(
-    "users",
-    metadata,
-    Column("id", Integer, primary_key=True, index=True),
-    Column("username", String, unique=True, index=True),
-    Column("hashed_password", String),
-)
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
