@@ -1,18 +1,18 @@
 # main.py
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
-from . import models, schemas, crud, dependencies, auth, utils
+from kraftlink import models, schemas, crud, dependencies, auth, utils
 
 app = FastAPI()
 
 @app.on_event("startup")
 async def startup():
-    await database.connect()
+    await dependencies.database.connect()
 
 @app.on_event("shutdown")
 async def shutdown():
-    await database.disconnect()
+    await dependencies.database.disconnect()
 
 @app.post("/register", response_model=schemas.User)
 def register_user(user: schemas.UserCreate, db: Session = Depends(dependencies.get_db)):
@@ -36,3 +36,11 @@ def login_for_access_token(db: Session = Depends(dependencies.get_db), form_data
 @app.get("/users/me", response_model=schemas.User)
 def read_users_me(current_user: schemas.User = Depends(auth.get_current_user)):
     return current_user
+
+@app.get("/test-db-connection")
+async def test_db_connection(db: Session = Depends(dependencies.get_db)):
+    try:
+        result = db.execute("SELECT 1")
+        return {"status": "success", "result": result.fetchone()}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}

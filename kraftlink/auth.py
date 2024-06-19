@@ -1,12 +1,16 @@
 # auth.py
+import os
 import jwt
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from . import schemas, crud, dependencies
+from dotenv import load_dotenv
 
-SECRET_KEY = "secret_key"
+load_dotenv()  # Load environment variables from .env file
+
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
