@@ -13,13 +13,13 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES= 30
 
 
-fake_db = {
+db = {
     'tim': {
         'username' : 'tim',
         'fullname' : 'tim cook',
         'email':'tim@gmail.com',
         'user_type': 'consumer',
-        'hashed_password' : '',
+        'hashed_password' : '$2b$12$phkYFHvw8oVTXrMyS4FdEeW32TJetD.1402kak.GwgM6Xgzjmyh06',
         'disabled' : False,
     }
 }
@@ -112,6 +112,15 @@ async def login_for_access_token(form_data : OAuth2PasswordRequestForm = Depends
         "token_type": "bearer",
     }
     
+
+@app.get("/users/me/",response_model= User)
+async def read_users_me(current_user: User = Depends(get_current_active_user)):
+    return current_user
+
+@app.get("/users/me/items")
+async def read_own_items(current_user: User = Depends(get_current_active_user)):
+    return [{"item_id":1, "owner": current_user}]
+
 
 
 
