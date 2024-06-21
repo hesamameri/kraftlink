@@ -3,14 +3,16 @@ from fastapi.security import OAuth2PasswordBearer,OAuth2PasswordRequestForm
 from datetime import datetime,timedelta
 from jose import JWTError,jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
+from pydantic import BaseModel,EmailStr
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 
-
-
-SECRET_KEY = "38bc3372640ab3bbe34e21951b8fc778ba48e6e115dd142e2005b290b8599b33"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES= 30
 
 
 db = {
@@ -24,6 +26,7 @@ db = {
     }
 }
 
+
 class Token(BaseModel):
     access_token : str
     token_type: str
@@ -34,7 +37,7 @@ class TokenData(BaseModel):
 class User(BaseModel):
     username:str
     fullname: str | None = None
-    email : str | None = None
+    email : EmailStr | None = None
     user_type: str | None = None
     disabled : bool | None = None
 
@@ -122,8 +125,7 @@ async def read_own_items(current_user: User = Depends(get_current_active_user)):
     return [{"item_id":1, "owner": current_user}]
 
 
-
-
+#################  USER REGISTRATION
 
 
 
