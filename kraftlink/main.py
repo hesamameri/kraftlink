@@ -1,7 +1,11 @@
 from fastapi import FastAPI,Depends,HTTPException,status
 from .schemas import *
 from .utils import *
-
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+from typing import List
+from . import crud, schemas, models, database,utils
+from .database import engine
 db = {
     'tim': {
         'username' : 'tim',
@@ -14,10 +18,21 @@ db = {
 }
 
 app = FastAPI()
+models.Base.metadata.create_all(bind=engine)
 #################  USER REGISTRATION
-@app.post("/register")
-async def register_user(user:User):
-    pass
+
+
+@app.post("/register", response_model=schemas.User)
+async def register_user(user_data: schemas.UserCreate, db: Session = Depends(database.get_db)):
+    new_user = crud.create_user(db=db, user_data=user_data)
+    
+    # Check user type and create appropriate record
+    if user_data.user_type == "manufacturer":
+        return crud.create_manufacturer(db, user_id=new_user.id)
+    elif user_data.user_type == "installer":
+        return crud.create_installer(db, user_id=new_user.id)
+    else:  # Default to consumer
+        return crud.create_consumer(db, user_id=new_user.id)
 
 
 
