@@ -10,17 +10,7 @@ import os
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from . import models, schemas, utils
-
-db = {
-    'tim': {
-        'username' : 'tim',
-        'fullname' : 'tim cook',
-        'email':'tim@gmail.com',
-        'user_type': 'consumer',
-        'hashed_password' : '$2b$12$phkYFHvw8oVTXrMyS4FdEeW32TJetD.1402kak.GwgM6Xgzjmyh06',
-        'disabled' : False,
-    }
-}
+from .database import get_db
 
 
 load_dotenv()  
@@ -43,10 +33,12 @@ def verify_password(plain_password,hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def get_user(db,username:str):
-    if username in db :
-        user_data = db[username]
-        return UserInDB(**user_data)
+# def get_user(db,username:str):
+#     if username in db :
+#         user_data = db[username]
+#         return UserInDB(**user_data)
+def get_user(db: Session, username: str):
+    return db.query(models.UserTable).filter(models.UserTable.username == username).first()
 def authenticate_user(db,username:str,password:str):
     user = get_user(db,username)
     if not user:
@@ -67,7 +59,7 @@ def create_access_token(data:dict,expires_delta:timedelta | None = None):
 
 
 
-async def get_current_user(token:str = Depends(oauth_2_scheme)):
+async def get_current_user(token:str = Depends(oauth_2_scheme), db: Session = Depends(get_db)):
     credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="could not validate credentials",headers={"WWW-Authenticate":"Bearer"})
     try:
         payload = jwt.decode(token,SECRET_KEY,algorithms=[ALGORITHM])

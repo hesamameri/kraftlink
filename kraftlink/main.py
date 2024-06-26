@@ -5,17 +5,8 @@ from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from typing import List
 from . import crud, schemas, models, database,utils
-from .database import engine
-db = {
-    'tim': {
-        'username' : 'tim',
-        'fullname' : 'tim cook',
-        'email':'tim@gmail.com',
-        'user_type': 'consumer',
-        'hashed_password' : '$2b$12$phkYFHvw8oVTXrMyS4FdEeW32TJetD.1402kak.GwgM6Xgzjmyh06',
-        'disabled' : False,
-    }
-}
+from .database import engine,get_db
+
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
@@ -39,13 +30,22 @@ async def register_user(user_data: schemas.UserCreate, db: Session = Depends(dat
 
 
 ####################### USER LOGIN and AUTHENTICATION
-@app.post("/token",response_model=Token)
-async def login_for_access_token(form_data : OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(db,form_data.username,form_data.password)
+@app.post("/token", response_model=Token)
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(), 
+    db: Session = Depends(get_db)
+):
+    user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail= "Incorrect username or password",headers={"WWW-Authenticate":"Bearer"})
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data = {"sub": user.username},expires_delta=access_token_expires)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 15)))    
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
     return {
         "access_token": access_token,
         "token_type": "bearer",
