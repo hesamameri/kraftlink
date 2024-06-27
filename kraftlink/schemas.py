@@ -19,14 +19,30 @@ class UserInDB(User):
 
 class Consumer(BaseModel):
     user: User
+    address: Optional[str] = None
+    phone_number: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 class Manufacturer(BaseModel):
-    user: User
+    user_id: int
+    comp_name: Optional[str] = None
+    address: Optional[str] = None
+    zip_code: Optional[str] = None
+    account_id: int
+    comp_register_number: Optional[str] = None
+    company_size: Optional[str] = None
+    register_time: datetime
     model_config = ConfigDict(from_attributes=True)
 
 class Installer(BaseModel):
-    user: User
+    user_id: int
+    comp_name: Optional[str] = None
+    address: Optional[str] = None
+    zip_code: Optional[str] = None
+    account_id: int
+    comp_register_number: Optional[str] = None
+    company_size: Optional[str] = None
+    register_time: datetime
     model_config = ConfigDict(from_attributes=True)
 
 class Token(BaseModel):
@@ -84,6 +100,7 @@ class Project(BaseModel):
     register_time: datetime
     model_config = ConfigDict(from_attributes=True)
 
+
 class Product(BaseModel):
     manufacturer_id: int
     project_id: int
@@ -96,6 +113,7 @@ class Category(BaseModel):
     name: str
     register_time: datetime
     model_config = ConfigDict(from_attributes=True)
+
 
 class Image(BaseModel):
     category_id: int

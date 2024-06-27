@@ -2,11 +2,17 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, D
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, timezone
-
+from sqlalchemy import Table, Column, Integer, ForeignKey
 Base = declarative_base()
-
+project_manufacturer_association = Table(
+    'project_manufacturer_association', Base.metadata,
+    Column('project_id', Integer, ForeignKey('projects.id')),
+    Column('manufacturer_id', Integer, ForeignKey('manufacturers.id')),
+    extend_existing=True
+)
 class UserTable(Base):
     __tablename__ = "users"
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
     fullname = Column(String, index=True)
@@ -14,16 +20,16 @@ class UserTable(Base):
     user_type = Column(String)
     disabled = Column(Boolean, default=False)
     hashed_password = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-    # Define one-to-one relationships
     consumer = relationship("ConsumerTable", uselist=False, back_populates="user")
     manufacturer = relationship("ManufacturerTable", uselist=False, back_populates="user")
     installer = relationship("InstallerTable", uselist=False, back_populates="user")
 
 class ConsumerTable(Base):
     __tablename__ = "consumers"
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     address = Column(String)
@@ -32,25 +38,45 @@ class ConsumerTable(Base):
 
 class ManufacturerTable(Base):
     __tablename__ = "manufacturers"
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    company_name = Column(String)
-    industry = Column(String)
+    comp_name = Column(String(255), nullable=True)
+    address = Column(String, nullable=True)
+    zip_code = Column(String(20), nullable=True)
+    account_id = Column(Integer, ForeignKey('accounts.id'))
+    comp_register_number = Column(String(255), nullable=True)
+    company_size = Column(String(50), nullable=True)
+    register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
     user = relationship("UserTable", back_populates="manufacturer")
+    account = relationship("AccountsTable", back_populates="manufacturers")
+    projects = relationship("ProjectsTable", secondary=project_manufacturer_association, back_populates="manufacturers")
+
 
 class InstallerTable(Base):
     __tablename__ = "installers"
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    service_area = Column(String)
-    experience_years = Column(Integer)
+    comp_name = Column(String(255))
+    address = Column(String)
+    zip_code = Column(String(20))
+    account_id = Column(Integer, ForeignKey('accounts.id'))
+    company_reg_number = Column(String(255))
+    company_size = Column(String(50))
+    register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
     user = relationship("UserTable", back_populates="installer")
+    account = relationship("AccountsTable", back_populates="installers")
+    projects = relationship("ProjectsTable", back_populates="installer")
 
 
 
 # New tables
 class AccountsTable(Base):
     __tablename__ = "accounts"
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     name = Column(String(255))
@@ -63,9 +89,12 @@ class AccountsTable(Base):
     cvv = Column(String(3))
 
     shares = relationship("SharesTable", back_populates="account")
+    manufacturers = relationship("ManufacturerTable", back_populates="account")
+    installers = relationship("InstallerTable", back_populates="account")
 
 class SharesTable(Base):
     __tablename__ = "shares"
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     amount_nok = Column(DECIMAL(15, 2))
     account_id = Column(Integer, ForeignKey('accounts.id'))
@@ -80,10 +109,9 @@ class SharesTable(Base):
 
 class ProjectsTable(Base):
     __tablename__ = "projects"
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
-    share_id = Column(Integer, ForeignKey('shares.id'))
     installer_id = Column(Integer, ForeignKey('installers.id'))
-    manufacturer_id = Column(Integer, ForeignKey('manufacturers.id'))
     location = Column(String)
     name = Column(String(255))
     type_of_facility = Column(String(255))
@@ -100,13 +128,13 @@ class ProjectsTable(Base):
     funded_status = Column(String(50))
     register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
-    shares = relationship("SharesTable", back_populates="project")
-    installer = relationship("InstallerTable", back_populates="projects")
-    manufacturer = relationship("ManufacturerTable", back_populates="projects")
+    installers = relationship("InstallerTable", back_populates="projects")
+    manufacturers = relationship("ManufacturerTable", secondary=project_manufacturer_association, back_populates="projects")
     products = relationship("ProductsTable", back_populates="project")
 
 class ProductsTable(Base):
     __tablename__ = "products"
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     manufacturer_id = Column(Integer, ForeignKey('manufacturers.id'))
     project_id = Column(Integer, ForeignKey('projects.id'))
@@ -121,6 +149,17 @@ class ProductsTable(Base):
 
 class CategoriesTable(Base):
     __tablename__ = "categories"
+    __table_args__ = {'extend_existing': True}
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255))
+    register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    products = relationship("ProductsTable", back_populates="category")
+    images = relationship("ImagesTable", back_populates="category")
+
+class CategoriesTable(Base):
+    __tablename__ = "categories"
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255))
     register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
@@ -130,6 +169,7 @@ class CategoriesTable(Base):
 
 class ImagesTable(Base):
     __tablename__ = "images"
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     category_id = Column(Integer, ForeignKey('categories.id'))
     product_id = Column(Integer, ForeignKey('products.id'))
@@ -137,3 +177,4 @@ class ImagesTable(Base):
 
     category = relationship("CategoriesTable", back_populates="images")
     product = relationship("ProductsTable", back_populates="images")
+
