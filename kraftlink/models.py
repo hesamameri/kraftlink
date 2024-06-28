@@ -3,13 +3,16 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, timezone
 from sqlalchemy import Table, Column, Integer, ForeignKey
+
 Base = declarative_base()
+
 project_manufacturer_association = Table(
     'project_manufacturer_association', Base.metadata,
     Column('project_id', Integer, ForeignKey('projects.id')),
     Column('manufacturer_id', Integer, ForeignKey('manufacturers.id')),
     extend_existing=True
 )
+
 class UserTable(Base):
     __tablename__ = "users"
     __table_args__ = {'extend_existing': True}
@@ -50,9 +53,9 @@ class ManufacturerTable(Base):
     register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     user = relationship("UserTable", back_populates="manufacturer")
-    account = relationship("AccountsTable", back_populates="manufacturers")
+    account = relationship("AccountsTable", back_populates="manufacturer", uselist=False)
     projects = relationship("ProjectsTable", secondary=project_manufacturer_association, back_populates="manufacturers")
-
+    products = relationship("ProductsTable", back_populates="manufacturer")
 
 class InstallerTable(Base):
     __tablename__ = "installers"
@@ -68,12 +71,9 @@ class InstallerTable(Base):
     register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     user = relationship("UserTable", back_populates="installer")
-    account = relationship("AccountsTable", back_populates="installers")
+    account = relationship("AccountsTable", back_populates="installer", uselist=False)
     projects = relationship("ProjectsTable", back_populates="installer")
 
-
-
-# New tables
 class AccountsTable(Base):
     __tablename__ = "accounts"
     __table_args__ = {'extend_existing': True}
@@ -89,8 +89,8 @@ class AccountsTable(Base):
     cvv = Column(String(3))
 
     shares = relationship("SharesTable", back_populates="account")
-    manufacturers = relationship("ManufacturerTable", back_populates="account")
-    installers = relationship("InstallerTable", back_populates="account")
+    manufacturer = relationship("ManufacturerTable", back_populates="account", uselist=False)
+    installer = relationship("InstallerTable", back_populates="account", uselist=False)
 
 class SharesTable(Base):
     __tablename__ = "shares"
@@ -105,7 +105,6 @@ class SharesTable(Base):
 
     account = relationship("AccountsTable", back_populates="shares")
     project = relationship("ProjectsTable", back_populates="shares")
-
 
 class ProjectsTable(Base):
     __tablename__ = "projects"
@@ -131,6 +130,7 @@ class ProjectsTable(Base):
     installers = relationship("InstallerTable", back_populates="projects")
     manufacturers = relationship("ManufacturerTable", secondary=project_manufacturer_association, back_populates="projects")
     products = relationship("ProductsTable", back_populates="project")
+    shares = relationship("SharesTable", back_populates="project")
 
 class ProductsTable(Base):
     __tablename__ = "products"
@@ -157,16 +157,6 @@ class CategoriesTable(Base):
     products = relationship("ProductsTable", back_populates="category")
     images = relationship("ImagesTable", back_populates="category")
 
-class CategoriesTable(Base):
-    __tablename__ = "categories"
-    __table_args__ = {'extend_existing': True}
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255))
-    register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-
-    products = relationship("ProductsTable", back_populates="category")
-    images = relationship("ImagesTable", back_populates="category")
-
 class ImagesTable(Base):
     __tablename__ = "images"
     __table_args__ = {'extend_existing': True}
@@ -177,4 +167,3 @@ class ImagesTable(Base):
 
     category = relationship("CategoriesTable", back_populates="images")
     product = relationship("ProductsTable", back_populates="images")
-

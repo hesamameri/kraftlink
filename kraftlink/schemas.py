@@ -13,7 +13,7 @@ class UserCreate(User):
     password: str
 
 class UserInDB(User):
-    id:int
+    id: int
     hashed_password: str
     model_config = ConfigDict(from_attributes=True)
 
@@ -46,14 +46,11 @@ class Installer(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class Token(BaseModel):
-    access_token : str
+    access_token: str
     token_type: str
 
 class TokenData(BaseModel):
     username: str | None = None
-
-
-
 
 # New models
 class Account(BaseModel):
@@ -77,12 +74,8 @@ class Share(BaseModel):
     register_time: datetime
     model_config = ConfigDict(from_attributes=True)
 
-
-
 class Project(BaseModel):
-    share_id: int
     installer_id: int
-    manufacturer_id: int
     location: str
     name: str
     type_of_facility: str
@@ -100,7 +93,6 @@ class Project(BaseModel):
     register_time: datetime
     model_config = ConfigDict(from_attributes=True)
 
-
 class Product(BaseModel):
     manufacturer_id: int
     project_id: int
@@ -113,7 +105,6 @@ class Category(BaseModel):
     name: str
     register_time: datetime
     model_config = ConfigDict(from_attributes=True)
-
 
 class Image(BaseModel):
     category_id: int
