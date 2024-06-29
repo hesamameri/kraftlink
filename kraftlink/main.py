@@ -107,7 +107,7 @@ async def get_users(db: Session = Depends(get_db)):
 
 ####################################  Manufacturer, INSTALLER, Consumer DATA UPDATE
 # register Manufacturer Data after it is created
-@app.get("/data_fill", response_model=User)
+@app.post("/data_fill", response_model=User)
 async def read_users_me(data: Union[Manufacturer, Installer, Consumer], current_user: User = Depends(get_current_active_user)):
     if current_user.user_type == 'manufacturer':
         if isinstance(data, Manufacturer):
