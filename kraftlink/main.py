@@ -64,15 +64,75 @@ async def login_for_access_token(
         "access_token": access_token,
         "token_type": "bearer",
     }
-    
+#######################################  ADMIN DATA DISPLAY OF ALL DATABASE OBJECTS
+@app.get('/users', response_model=List[schemas.User])
+async def get_users(db: Session = Depends(get_db)):
+    users = db.query(models.UserTable).all()
+    return users
+@app.get('/consumers', response_model=List[schemas.Consumer])
+async def get_users(db: Session = Depends(get_db)):
+    consumers = db.query(models.ConsumerTable).all()
+    return consumers
+@app.get('/installers', response_model=List[schemas.Installer])
+async def get_users(db: Session = Depends(get_db)):
+    installers = db.query(models.InstallerTable).all()
+    return installers
+@app.get('/manufacturers', response_model=List[schemas.Manufacturer])
+async def get_users(db: Session = Depends(get_db)):
+    manufacturers = db.query(models.ManufacturerTable).all()
+    return manufacturers
 
-@app.get("/users/me/",response_model= User)
-async def read_users_me(current_user: User = Depends(get_current_active_user)):
-    return current_user
+@app.get('/all/projects', response_model=List[schemas.Project])
+async def get_users(db: Session = Depends(get_db)):
+    projects = db.query(models.ProjectsTable).all()
+    return projects
 
-@app.get("/users/me/items")
-async def read_own_items(current_user: User = Depends(get_current_active_user)):
-    return [{"item_id":1, "owner": current_user}]
+@app.get('/all/products', response_model=List[schemas.Product])
+async def get_users(db: Session = Depends(get_db)):
+    products = db.query(models.ProductsTable).all()
+    return products
+
+@app.get('/all/shares', response_model=List[schemas.Share])
+async def get_users(db: Session = Depends(get_db)):
+    shares = db.query(models.SharesTable).all()
+    return shares
+@app.get('/all/accounts', response_model=List[schemas.Account])
+async def get_users(db: Session = Depends(get_db)):
+    accounts = db.query(models.AccountsTable).all()
+    return accounts
+
+
+####################################  Manufacturer, INSTALLER, Consumer DATA UPDATE
+
+
+#################################### CRUD PRODUCTS, PROJECTS, CATEGORIES, SHARES, ACCOUNTS
+
+
+######################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# @app.get("/users/me/",response_model= User)
+# async def read_users_me(current_user: User = Depends(get_current_active_user)):
+#     return current_user
+
+# @app.get("/users/me/items")
+# async def read_own_items(current_user: User = Depends(get_current_active_user)):
+#     return [{"item_id":1, "owner": current_user}]
 
 
 

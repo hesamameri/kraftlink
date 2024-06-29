@@ -15,7 +15,6 @@ project_manufacturer_association = Table(
 
 class UserTable(Base):
     __tablename__ = "users"
-    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
     fullname = Column(String, index=True)
@@ -32,7 +31,6 @@ class UserTable(Base):
 
 class ConsumerTable(Base):
     __tablename__ = "consumers"
-    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     address = Column(String)
@@ -41,7 +39,6 @@ class ConsumerTable(Base):
 
 class ManufacturerTable(Base):
     __tablename__ = "manufacturers"
-    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     comp_name = Column(String(255), nullable=True)
@@ -59,7 +56,6 @@ class ManufacturerTable(Base):
 
 class InstallerTable(Base):
     __tablename__ = "installers"
-    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     comp_name = Column(String(255))
@@ -69,14 +65,12 @@ class InstallerTable(Base):
     company_reg_number = Column(String(255))
     company_size = Column(String(50))
     register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-
     user = relationship("UserTable", back_populates="installer")
     account = relationship("AccountsTable", back_populates="installer", uselist=False)
     projects = relationship("ProjectsTable", back_populates="installer")
 
 class AccountsTable(Base):
     __tablename__ = "accounts"
-    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     name = Column(String(255))
@@ -94,7 +88,6 @@ class AccountsTable(Base):
 
 class SharesTable(Base):
     __tablename__ = "shares"
-    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     amount_nok = Column(DECIMAL(15, 2))
     account_id = Column(Integer, ForeignKey('accounts.id'))
@@ -108,7 +101,6 @@ class SharesTable(Base):
 
 class ProjectsTable(Base):
     __tablename__ = "projects"
-    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     installer_id = Column(Integer, ForeignKey('installers.id'))
     location = Column(String)
@@ -127,14 +119,13 @@ class ProjectsTable(Base):
     funded_status = Column(String(50))
     register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
-    installers = relationship("InstallerTable", back_populates="projects")
+    installer = relationship("InstallerTable", back_populates="projects")
     manufacturers = relationship("ManufacturerTable", secondary=project_manufacturer_association, back_populates="projects")
     products = relationship("ProductsTable", back_populates="project")
     shares = relationship("SharesTable", back_populates="project")
 
 class ProductsTable(Base):
     __tablename__ = "products"
-    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     manufacturer_id = Column(Integer, ForeignKey('manufacturers.id'))
     project_id = Column(Integer, ForeignKey('projects.id'))
@@ -149,7 +140,6 @@ class ProductsTable(Base):
 
 class CategoriesTable(Base):
     __tablename__ = "categories"
-    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255))
     register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
@@ -159,7 +149,6 @@ class CategoriesTable(Base):
 
 class ImagesTable(Base):
     __tablename__ = "images"
-    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     category_id = Column(Integer, ForeignKey('categories.id'))
     product_id = Column(Integer, ForeignKey('products.id'))

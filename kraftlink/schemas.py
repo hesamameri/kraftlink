@@ -39,10 +39,10 @@ class Installer(BaseModel):
     comp_name: Optional[str] = None
     address: Optional[str] = None
     zip_code: Optional[str] = None
-    account_id: int
+    account_id: Optional[int] = None
     comp_register_number: Optional[str] = None
     company_size: Optional[str] = None
-    register_time: datetime
+    register_time: Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True)
 
 class Token(BaseModel):

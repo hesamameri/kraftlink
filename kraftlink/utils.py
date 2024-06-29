@@ -33,10 +33,6 @@ def verify_password(plain_password,hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-# def get_user(db,username:str):
-#     if username in db :
-#         user_data = db[username]
-#         return UserInDB(**user_data)
 def get_user(db: Session, username: str):
     return db.query(models.UserTable).filter(models.UserTable.username == username).first()
 def authenticate_user(db,username:str,password:str):

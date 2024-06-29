@@ -59,3 +59,32 @@ def create_installer(db: Session, user_id: int) -> schemas.UserInDB:
 
 def get_users(db: Session, skip: int = 0, limit: int = 10):
     return db.query(models.UserTable).offset(skip).limit(limit).all()
+
+
+
+
+# show all the Manufacturers, Installers , Consumers,Products,Shares,Projects,CAtegories,Images
+
+# register manufacturer Data -- > Complete their data 
+# register Installer Data -- > Complete their data
+# create Account based on the user and manufacturer data
+# delete USer, Manufacturer, Installer , account
+# update User,Manufacturer, Installer , account DATA
+
+# create, delete, update SHARE
+# create ,delete,update PRODUCT
+# create,register ,delete,update PROJECT
+# CRUD CATEGORY and IMAGES
+
+
+# Add ROLE TO EACH USER UPGRADE USERS , DOWNGRADE USERS
+
+
+
+
+
+
+
+
+
+
