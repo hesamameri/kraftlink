@@ -8,6 +8,8 @@ from . import crud, schemas, models, database,utils
 from .database import engine,get_db
 from fastapi.concurrency import run_in_threadpool
 import logging
+from typing import Union
+
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
@@ -37,12 +39,6 @@ async def register_user(user_data: schemas.UserCreate, db: Session = Depends(dat
     except Exception as e:
         logging.error(f"Error creating {user_data.user_type} record: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to create {user_data.user_type} record")
-
-
-
-
-
-
 ####################### USER LOGIN and AUTHENTICATION
 @app.post("/token", response_model=Token)
 async def login_for_access_token(
@@ -100,9 +96,41 @@ async def get_users(db: Session = Depends(get_db)):
 async def get_users(db: Session = Depends(get_db)):
     accounts = db.query(models.AccountsTable).all()
     return accounts
-
+@app.get('/all/categories', response_model=List[schemas.Category])
+async def get_users(db: Session = Depends(get_db)):
+    categories = db.query(models.CategoriesTable).all()
+    return categories
+@app.get('/all/images', response_model=List[schemas.Image])
+async def get_users(db: Session = Depends(get_db)):
+    images = db.query(models.ImagesTable).all()
+    return images
 
 ####################################  Manufacturer, INSTALLER, Consumer DATA UPDATE
+# register Manufacturer Data after it is created
+@app.get("/data_fill", response_model=User)
+async def read_users_me(data: Union[Manufacturer, Installer, Consumer], current_user: User = Depends(get_current_active_user)):
+    if current_user.user_type == 'manufacturer':
+        if isinstance(data, Manufacturer):
+            print(f"Manufacturer name: {data.comp_name}")
+        else:
+            raise HTTPException(status_code=422, detail="Incorrect data type for manufacturer")
+    elif current_user.user_type == 'installer':
+        if isinstance(data, Installer):
+            print(f"installer name: {data.comp_name}")
+        else:
+            raise HTTPException(status_code=422, detail="Incorrect data type for installer")
+    elif current_user.user_type == 'consumer':
+        if isinstance(data, Consumer):
+            print(f"Consumer Location: {data.address}")
+        else:
+            raise HTTPException(status_code=422, detail="Incorrect data type for Consumer")
+    else:
+        raise HTTPException(status_code=400, detail="Invalid user type")
+    return current_user
+
+
+
+
 
 
 #################################### CRUD PRODUCTS, PROJECTS, CATEGORIES, SHARES, ACCOUNTS
