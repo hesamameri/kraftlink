@@ -17,6 +17,12 @@ class UserInDB(User):
     hashed_password: str
     model_config = ConfigDict(from_attributes=True)
 
+class UserUpdate(BaseModel):
+    fullname: Optional[str] = None
+    email: Optional[EmailStr] = None
+    user_type: Optional[str] = None
+    disabled: Optional[bool] = None
+
 class Consumer(BaseModel):
     user: User
     address: Optional[str] = None

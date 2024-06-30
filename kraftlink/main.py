@@ -153,25 +153,140 @@ async def update_user_data(
     return current_user
 
 #################################### UPDATE USER DATA
+@app.put("/update_user", response_model=User)
+async def update_user(
+    user_update: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.UserTable = Depends(get_current_active_user)
+):
+    user = db.query(models.UserTable).filter(models.UserTable.id == current_user.id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user_update.fullname is not None:
+        user.fullname = user_update.fullname
+    if user_update.email is not None:
+        user.email = user_update.email
+    if user_update.user_type is not None:
+        user.user_type = user_update.user_type
+    if user_update.disabled is not None:
+        user.disabled = user_update.disabled
 
-
-
-
-
-
-
-
-
+    db.commit()
+    db.refresh(user)
+    return user
 
 #################################### CRUD PRODUCTS, PROJECTS, CATEGORIES, SHARES, ACCOUNTS
- 
-# @app.get("/users/me/",response_model= User)
-# async def read_users_me(current_user: User = Depends(get_current_active_user)):
-#     return current_user
 
-# @app.get("/users/me/items")
-# async def read_own_items(current_user: User = Depends(get_current_active_user)):
-#     return [{"item_id":1, "owner": current_user}]
+# Account
+# create account
+@app.post("/create_account")
+async def create_account():
+    pass
+
+# delete account
+@app.delete("/delete_account")
+async def delete_account():
+    pass
+# update account
+@app.put("/update_account")
+async def update_account():
+    pass
+# get account
+@app.get("/get_account")
+async def get_account():
+    pass
+# SHARES
+# create shares
+@app.post("/create_share")
+async def create_share():
+    pass
+# delete shares
+@app.delete("/delete_share")
+async def delete_share():
+    pass
+# update shares
+@app.put("/update_share")
+async def update_share():
+    pass
+# get shares
+@app.get("/get_share")
+async def get_share():
+    pass
+
+# PRODUCT
+# create product
+@app.post("/create_product")
+async def create_product():
+    pass
+# delete product
+@app.delete("/delete_product")
+async def delete_product():
+    pass
+# update product
+@app.put("/update_product")
+async def update_product():
+    pass
+# get product
+@app.get("/get_product")
+async def get_product():
+    pass
+
+#PROJECT
+# create project
+@app.post("/create_project")
+async def create_project():
+    pass
+# delete project
+@app.delete("/delete_project")
+async def delete_project():
+    pass
+# update project
+@app.put("/update_project")
+async def update_project():
+    pass
+# get project
+@app.get("/get_project")
+async def get_project():
+    pass
+#category
+# create category
+@app.post("/create_category")
+async def create_category():
+    pass
+# delete category
+@app.delete("/delete_category")
+async def delete_category():
+    pass
+# update category
+@app.put("/update_category")
+async def update_category():
+    pass
+# get category
+@app.get("/get_category")
+async def get_category():
+    pass
+
+#Images
+# create images
+@app.post("/create_image")
+async def create_image():
+    pass
+# delete images
+@app.delete("/delete_image")
+async def delete_image():
+    pass
+# update images
+@app.put("/update_image")
+async def update_image():
+    pass
+# get images
+@app.get("/get_image")
+async def get_image():
+    pass
+
+
+
 
 
 
