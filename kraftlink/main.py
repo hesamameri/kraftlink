@@ -14,8 +14,6 @@ from typing import Union
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
 #################  USER REGISTRATION
-
-
 @app.post("/register", response_model=schemas.User)
 async def register_user(user_data: schemas.UserCreate, db: Session = Depends(database.get_db)):
     # Create a new user in a thread pool
@@ -45,6 +43,7 @@ async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), 
     db: Session = Depends(get_db)
 ):
+
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -87,7 +86,6 @@ async def get_users(db: Session = Depends(get_db)):
 async def get_users(db: Session = Depends(get_db)):
     products = db.query(models.ProductsTable).all()
     return products
-
 @app.get('/all/shares', response_model=List[schemas.Share])
 async def get_users(db: Session = Depends(get_db)):
     shares = db.query(models.SharesTable).all()
@@ -106,7 +104,7 @@ async def get_users(db: Session = Depends(get_db)):
     return images
 
 ####################################  Manufacturer, INSTALLER, Consumer DATA UPDATE
-# register Manufacturer Data after it is created
+# register usertype data after user created
 @app.post("/data_fill", response_model=User)
 async def read_users_me(data: Union[Manufacturer, Installer, Consumer], current_user: User = Depends(get_current_active_user)):
     if current_user.user_type == 'manufacturer':
@@ -114,6 +112,7 @@ async def read_users_me(data: Union[Manufacturer, Installer, Consumer], current_
             print(f"Manufacturer name: {data.comp_name}")
         else:
             raise HTTPException(status_code=422, detail="Incorrect data type for manufacturer")
+        
     elif current_user.user_type == 'installer':
         if isinstance(data, Installer):
             print(f"installer name: {data.comp_name}")
@@ -128,32 +127,19 @@ async def read_users_me(data: Union[Manufacturer, Installer, Consumer], current_
         raise HTTPException(status_code=400, detail="Invalid user type")
     return current_user
 
+#################################### UPDATE USER DATA
+
+
+
+
+
 
 
 
 
 
 #################################### CRUD PRODUCTS, PROJECTS, CATEGORIES, SHARES, ACCOUNTS
-
-
-######################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 # @app.get("/users/me/",response_model= User)
 # async def read_users_me(current_user: User = Depends(get_current_active_user)):
 #     return current_user

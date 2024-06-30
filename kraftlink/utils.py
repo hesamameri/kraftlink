@@ -6,12 +6,10 @@ from fastapi.security import OAuth2PasswordBearer,OAuth2PasswordRequestForm
 from datetime import datetime,timedelta
 from dotenv import load_dotenv
 import os
-
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from . import models, schemas, utils
 from .database import get_db
-
 
 load_dotenv()  
 SECRET_KEY = os.getenv("SECRET_KEY")
