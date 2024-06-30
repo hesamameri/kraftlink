@@ -28,7 +28,7 @@ class Manufacturer(BaseModel):
     comp_name: Optional[str] = None
     address: Optional[str] = None
     zip_code: Optional[str] = None
-    account_id: int
+    account_id: int|Optional[str] = None
     comp_register_number: Optional[str] = None
     company_size: Optional[str] = None
     register_time: datetime

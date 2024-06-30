@@ -104,27 +104,52 @@ async def get_users(db: Session = Depends(get_db)):
     return images
 
 ####################################  Manufacturer, INSTALLER, Consumer DATA UPDATE
-# register usertype data after user created
 @app.post("/data_fill", response_model=User)
-async def read_users_me(data: Union[Manufacturer, Installer, Consumer], current_user: User = Depends(get_current_active_user)):
+async def update_user_data(
+    data: Union[Manufacturer, Installer, Consumer], 
+    db: Session = Depends(get_db), 
+    current_user: models.UserTable = Depends(get_current_active_user)
+):
     if current_user.user_type == 'manufacturer':
         if isinstance(data, Manufacturer):
-            print(f"Manufacturer name: {data.comp_name}")
+            manufacturer = db.query(models.ManufacturerTable).filter(models.ManufacturerTable.user_id == current_user.id).first()
+            if not manufacturer:
+                raise HTTPException(status_code=404, detail="Manufacturer not found")
+            manufacturer.comp_name = data.comp_name
+            manufacturer.address = data.address
+            manufacturer.zip_code = data.zip_code
+            manufacturer.comp_register_number = data.comp_register_number
+            manufacturer.company_size = data.company_size
         else:
             raise HTTPException(status_code=422, detail="Incorrect data type for manufacturer")
         
     elif current_user.user_type == 'installer':
         if isinstance(data, Installer):
-            print(f"installer name: {data.comp_name}")
+            installer = db.query(models.InstallerTable).filter(models.InstallerTable.user_id == current_user.id).first()
+            if not installer:
+                raise HTTPException(status_code=404, detail="Installer not found")
+            installer.comp_name = data.comp_name
+            installer.address = data.address
+            installer.zip_code = data.zip_code
+            installer.company_reg_number = data.company_reg_number
+            installer.company_size = data.company_size
         else:
             raise HTTPException(status_code=422, detail="Incorrect data type for installer")
+        
     elif current_user.user_type == 'consumer':
         if isinstance(data, Consumer):
-            print(f"Consumer Location: {data.address}")
+            consumer = db.query(models.ConsumerTable).filter(models.ConsumerTable.user_id == current_user.id).first()
+            if not consumer:
+                raise HTTPException(status_code=404, detail="Consumer not found")
+            consumer.address = data.address
+            consumer.phone_number = data.phone_number
         else:
-            raise HTTPException(status_code=422, detail="Incorrect data type for Consumer")
+            raise HTTPException(status_code=422, detail="Incorrect data type for consumer")
     else:
         raise HTTPException(status_code=400, detail="Invalid user type")
+
+    db.commit()
+    db.refresh(current_user)
     return current_user
 
 #################################### UPDATE USER DATA
