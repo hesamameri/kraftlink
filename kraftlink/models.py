@@ -97,7 +97,7 @@ class SharesTable(Base):
 class ProjectsTable(Base):
     __tablename__ = "projects"
     id = Column(Integer, primary_key=True, index=True)
-    installer_id = Column(Integer, ForeignKey('installers.id'))
+    installer_id = Column(Integer, ForeignKey('installers.id'), nullable=True)
     location = Column(String)
     name = Column(String(255))
     type_of_facility = Column(String(255))
@@ -144,6 +144,7 @@ class ImagesTable(Base):
     id = Column(Integer, primary_key=True, index=True)
     category_id = Column(Integer, ForeignKey('categories.id'))
     product_id = Column(Integer, ForeignKey('products.id'))
+    file_path = Column(String, nullable=False)  # Path to the image file
     register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     category = relationship("CategoriesTable", back_populates="images")
     product = relationship("ProductsTable", back_populates="images")

@@ -99,6 +99,19 @@ class AccountUpdate(BaseModel):
     class Config:
         orm_mode = True
         from_attributes = True
+class AccountResponse(BaseModel):
+    name: str
+    surname: str
+    company_name: str
+    balance_nok: float
+    register_time: datetime
+    bank_card_number: str
+    bank: str
+    cvv: str
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
 class Share(BaseModel):
     amount_nok: float
     account_id: int
@@ -107,9 +120,24 @@ class Share(BaseModel):
     profit_margin: float
     register_time: datetime
     model_config = ConfigDict(from_attributes=True)
+class ShareCreate(Share):
+    pass
 
+class ShareUpdate(BaseModel):
+    amount_nok: Optional[float] = None
+    account_id: Optional[int] = None
+    project_id: Optional[int] = None
+    percentage_share: Optional[float] = None
+    profit_margin: Optional[float] = None
+
+class ShareResponse(Share):
+    id: int
+    register_time: datetime
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
 class Project(BaseModel):
-    installer_id: int
     location: str
     name: str
     type_of_facility: str
@@ -124,8 +152,37 @@ class Project(BaseModel):
     manufacturer_status: str
     installer_status: str
     funded_status: str
+
+class ProjectCreate(Project):
+    installer_id: Optional[int] = None
+
+class ProjectUpdate(BaseModel):
+    installer_id: Optional[int] = None
+    location: Optional[str] = None
+    name: Optional[str] = None
+    type_of_facility: Optional[str] = None
+    capacity: Optional[float] = None
+    realtime_electricity_generation: Optional[float] = None
+    number_of_shares: Optional[int] = None
+    cost_nok: Optional[float] = None
+    money_required: Optional[float] = None
+    money_spent: Optional[float] = None
+    money_left: Optional[float] = None
+    electricity_generation_prediction: Optional[str] = None
+    manufacturer_status: Optional[str] = None
+    installer_status: Optional[str] = None
+    funded_status: Optional[str] = None
+
+class ProjectResponse(Project):
+    id: int
+    installer_id: Optional[int]
     register_time: datetime
-    model_config = ConfigDict(from_attributes=True)
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
+
 
 class Product(BaseModel):
     manufacturer_id: int
@@ -134,14 +191,53 @@ class Product(BaseModel):
     category_id: int
     register_time: datetime
     model_config = ConfigDict(from_attributes=True)
+class ProductCreate(Product):
+    pass
+class ProductUpdate(BaseModel):
+    manufacturer_id: Optional[int] = None
+    project_id: Optional[int] = None
+    name: Optional[str] = None
+    category_id: Optional[int] = None
+class ProductResponse(Product):
+    id: int
+    register_time: datetime
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
 
 class Category(BaseModel):
     name: str
+
+class CategoryCreate(Category):
+    pass
+
+class CategoryUpdate(BaseModel):
+    name: Optional[str] = None
+
+class CategoryResponse(Category):
+    id: int
     register_time: datetime
-    model_config = ConfigDict(from_attributes=True)
+
+    class Config:
+        from_attributes = True
+
 
 class Image(BaseModel):
     category_id: int
     product_id: int
+
+class ImageCreate(Image):
+    pass
+class ImageUpdate(BaseModel):
+    category_id: Optional[int] = None
+    product_id: Optional[int] = None
+
+class ImageResponse(Image):
+    id: int
+    file_path: str
     register_time: datetime
-    model_config = ConfigDict(from_attributes=True)
+
+    class Config:
+        from_attributes = True  # Correctly use from_attributes for Pydantic v2
