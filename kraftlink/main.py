@@ -1,3 +1,4 @@
+from datetime import timezone
 from fastapi import FastAPI,Depends,HTTPException,status
 from .schemas import *
 from .utils import *
@@ -104,6 +105,8 @@ async def get_users(db: Session = Depends(get_db)):
     return images
 
 ####################################  Manufacturer, INSTALLER, Consumer DATA UPDATE
+
+
 @app.post("/data_fill", response_model=User)
 async def update_user_data(
     data: Union[Manufacturer, Installer, Consumer], 
@@ -153,6 +156,7 @@ async def update_user_data(
     return current_user
 
 #################################### UPDATE USER DATA
+
 @app.put("/update_user", response_model=User)
 async def update_user(
     user_update: UserUpdate,
@@ -180,22 +184,81 @@ async def update_user(
 
 # Account
 # create account
-@app.post("/create_account")
-async def create_account():
-    pass
+@app.post("/create_account", response_model=Account)
+async def create_account(
+    account: AccountCreate,
+    db: Session = Depends(get_db), 
+    current_user: models.UserTable = Depends(get_current_active_user)
+):
+    # Check if the user already has an account
+    existing_account = db.query(models.AccountsTable).filter(models.AccountsTable.user_id == current_user.id).first()
+    if existing_account:
+        raise HTTPException(status_code=400, detail="Account already exists for this user")
+
+    # Create a new account
+    new_account = models.AccountsTable(
+        user_id=current_user.id,
+        name=account.name,
+        surname=account.surname,
+        company_name=account.company_name,
+        balance_nok=account.balance_nok,
+        register_time=datetime.now(timezone.utc),
+        bank_card_number=account.bank_card_number,
+        bank=account.bank,
+        cvv=account.cvv,
+    )
+    db.add(new_account)
+    db.commit()
+    db.refresh(new_account)
+    return new_account
 
 # delete account
-@app.delete("/delete_account")
-async def delete_account():
-    pass
+@app.delete("/delete_account", response_model=Account)
+async def delete_account(
+    db: Session = Depends(get_db),
+    current_user: models.UserTable = Depends(get_current_active_user)
+):
+    # Check if the user has an account
+    account = db.query(models.AccountsTable).filter(models.AccountsTable.user_id == current_user.id).first()
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    # Delete the account
+    db.delete(account)
+    db.commit()
+    return account
 # update account
-@app.put("/update_account")
-async def update_account():
-    pass
+@app.put("/update_account", response_model=Account)
+async def update_account(
+    account_update: AccountUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.UserTable = Depends(get_current_active_user)
+):
+    # Check if the user has an account
+    account = db.query(models.AccountsTable).filter(models.AccountsTable.user_id == current_user.id).first()
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    # Update account fields
+    update_data = account_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(account, key, value)
+
+    db.commit()
+    db.refresh(account)
+    return account
 # get account
-@app.get("/get_account")
-async def get_account():
-    pass
+@app.get("/get_account", response_model=Account)
+async def get_account(
+    db: Session = Depends(get_db), 
+    current_user: models.UserTable = Depends(get_current_active_user)
+):
+    # Check if the user has an account
+    account = db.query(models.AccountsTable).filter(models.AccountsTable.user_id == current_user.id).first()
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+    
+    return account
 # SHARES
 # create shares
 @app.post("/create_share")
@@ -219,14 +282,17 @@ async def get_share():
 @app.post("/create_product")
 async def create_product():
     pass
+
 # delete product
 @app.delete("/delete_product")
 async def delete_product():
     pass
+
 # update product
 @app.put("/update_product")
 async def update_product():
     pass
+
 # get product
 @app.get("/get_product")
 async def get_product():
@@ -237,31 +303,38 @@ async def get_product():
 @app.post("/create_project")
 async def create_project():
     pass
+
 # delete project
 @app.delete("/delete_project")
 async def delete_project():
     pass
+
 # update project
 @app.put("/update_project")
 async def update_project():
     pass
+
 # get project
 @app.get("/get_project")
 async def get_project():
     pass
+
 #category
 # create category
 @app.post("/create_category")
 async def create_category():
     pass
+
 # delete category
 @app.delete("/delete_category")
 async def delete_category():
     pass
+
 # update category
 @app.put("/update_category")
 async def update_category():
     pass
+
 # get category
 @app.get("/get_category")
 async def get_category():
@@ -272,10 +345,12 @@ async def get_category():
 @app.post("/create_image")
 async def create_image():
     pass
+
 # delete images
 @app.delete("/delete_image")
 async def delete_image():
     pass
+
 # update images
 @app.put("/update_image")
 async def update_image():

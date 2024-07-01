@@ -60,6 +60,7 @@ class TokenData(BaseModel):
 
 # New models
 class Account(BaseModel):
+    id: int
     user_id: int
     name: str
     surname: str
@@ -69,8 +70,35 @@ class Account(BaseModel):
     bank_card_number: str
     bank: str
     cvv: str
-    model_config = ConfigDict(from_attributes=True)
 
+    class Config:
+        orm_mode = True
+class AccountCreate(BaseModel):
+    name: str
+    surname: str
+    company_name: str
+    balance_nok: float
+    register_time: datetime
+    bank_card_number: str
+    bank: str
+    cvv: str
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
+class AccountUpdate(BaseModel):
+    name: Optional[str] = None
+    surname: Optional[str] = None
+    company_name: Optional[str] = None
+    balance_nok: Optional[float] = None
+    bank_card_number: Optional[str] = None
+    bank: Optional[str] = None
+    cvv: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
 class Share(BaseModel):
     amount_nok: float
     account_id: int
