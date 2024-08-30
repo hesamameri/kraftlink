@@ -1,4 +1,5 @@
-from jose import JWTError,jwt
+from jose import JWTError
+from jose import jwt
 from passlib.context import CryptContext
 from .schemas import *
 from fastapi import FastAPI,Depends,HTTPException,status

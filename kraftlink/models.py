@@ -65,7 +65,17 @@ class InstallerTable(Base):
     user = relationship("UserTable", back_populates="installer")
     account = relationship("AccountsTable", back_populates="installer", uselist=False)
     projects = relationship("ProjectsTable", back_populates="installer")
-
+class SharesTable(Base):
+    __tablename__ = "shares"
+    id = Column(Integer, primary_key=True, index=True)
+    amount_nok = Column(DECIMAL(15, 2))
+    account_id = Column(Integer, ForeignKey('accounts.id'))
+    project_id = Column(Integer, ForeignKey('projects.id'), nullable=True)
+    percentage_share = Column(DECIMAL(5, 2))
+    profit_margin = Column(DECIMAL(5, 2))
+    register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    account = relationship("AccountsTable", back_populates="shares")
+    project = relationship("ProjectsTable", back_populates="shares") 
 class AccountsTable(Base):
     __tablename__ = "accounts"
     id = Column(Integer, primary_key=True, index=True)
@@ -82,22 +92,12 @@ class AccountsTable(Base):
     manufacturer = relationship("ManufacturerTable", back_populates="account", uselist=False)
     installer = relationship("InstallerTable", back_populates="account", uselist=False)
 
-class SharesTable(Base):
-    __tablename__ = "shares"
-    id = Column(Integer, primary_key=True, index=True)
-    amount_nok = Column(DECIMAL(15, 2))
-    account_id = Column(Integer, ForeignKey('accounts.id'))
-    project_id = Column(Integer, ForeignKey('projects.id'))
-    percentage_share = Column(DECIMAL(5, 2))
-    profit_margin = Column(DECIMAL(5, 2))
-    register_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    account = relationship("AccountsTable", back_populates="shares")
-    project = relationship("ProjectsTable", back_populates="shares")
+
 
 class ProjectsTable(Base):
     __tablename__ = "projects"
     id = Column(Integer, primary_key=True, index=True)
-    installer_id = Column(Integer, ForeignKey('installers.id'), nullable=True)
+    installer_id = Column(Integer, ForeignKey('installers.id'))
     location = Column(String)
     name = Column(String(255))
     type_of_facility = Column(String(255))
@@ -117,7 +117,7 @@ class ProjectsTable(Base):
     manufacturers = relationship("ManufacturerTable", secondary=project_manufacturer_association, back_populates="projects")
     products = relationship("ProductsTable", back_populates="project")
     shares = relationship("SharesTable", back_populates="project")
-    
+   
 class ProductsTable(Base):
     __tablename__ = "products"
     id = Column(Integer, primary_key=True, index=True)
